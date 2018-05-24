@@ -7,7 +7,18 @@
     <string name="item_done">Done</string>
     <string name="title_activity_process">ProcessActivity</string>
     <string name="tab_text_1">Pending</string>
-    <string name="tab_text_2">Terminated</string>
+    <string name="tab_text_2">Progress</string>
     <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
+
+    <!--AddEditTaskActivity strings-->
+    <string name="addedittask_toolbar_title">Edit task</string>
+    <string name="addedittask_title">Add or Edit New Task</string>
+    <string name="addedittask_name">Name:</string>
+    <string name="addedittask_description">Description</string>
+    <string name="addedittask_filepath">File to upload</string>
+    <string name="addedittask_browse_button">Browse</string>
+    <string name="addedittask_save_menu">Save</string>
+    <string name="addedittask_invalid_name">Task name field cannot be empty</string>
+    <string name="addedittask_invalid_filepath">Invalid file path</string>
+    <string name="addedittask_invalid_keywords">Cannot add more than 10 keywords</string>
 </resources>
