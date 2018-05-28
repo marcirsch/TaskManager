@@ -1,0 +1,39 @@
+#
+# generated on 2018/05/27 05:30:29
+#
+# --table-start--
+dataClass=com.example.marcell.taskmanager.Data.TaskDescriptor
+tableName=task_descriptor
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=name
+# --field-end--
+# --field-start--
+fieldName=description
+# --field-end--
+# --field-start--
+fieldName=filePath
+# --field-end--
+# --field-start--
+fieldName=keywordList
+dataPersister=SERIALIZABLE
+# --field-end--
+# --field-start--
+fieldName=taskStatus
+# --field-end--
+# --field-start--
+fieldName=completionTime
+# --field-end--
+# --field-start--
+fieldName=startTime
+# --field-end--
+# --field-start--
+fieldName=completionPercentage
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################

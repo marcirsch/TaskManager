@@ -1,48 +1,47 @@
 package com.example.marcell.taskmanager;
 
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.marcell.taskmanager.Cloud.CloudHandler;
+import com.example.marcell.taskmanager.Data.TaskDBHandler;
 import com.example.marcell.taskmanager.Data.TaskDescriptor;
-import com.example.marcell.taskmanager.Data.TaskDescriptorList;
-import com.example.marcell.taskmanager.Utils.TabAdapter;
+import com.example.marcell.taskmanager.Utils.SwipeController;
 import com.example.marcell.taskmanager.Utils.TasksRVAdapter;
+
+import java.util.List;
 
 public class PendingTaskFragment extends Fragment implements TasksRVAdapter.TasksRVAOnClickListener {
     private static final String TAG = PendingTaskFragment.class.getSimpleName();
 
-    private RecyclerView tasksRecyclerView;
     private TasksRVAdapter tasksRVAdapter;
+    private RecyclerView tasksRecyclerView;
 
     private ProcessActivity parentActivity;
-
-    private TaskDescriptorList pendingTasks;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.tab1_pending_tasks, container, false);
+        View rootView = inflater.inflate(R.layout.tab1_pending_tasks, container, false);
+
         TextView textView = (TextView) rootView.findViewById(R.id.tv_section_label);
         textView.setText("Tab1 onCreateView");
+
         Log.d(TAG, "onCreateVew TextView Inflate OK");
 
         parentActivity = ((ProcessActivity) getActivity());
-        pendingTasks = new TaskDescriptorList();
-
 
         //Initialize RecyclerView
         tasksRecyclerView = (RecyclerView) rootView.findViewById(R.id.rv_task_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(rootView.getContext(), LinearLayoutManager.VERTICAL, false);
-
 
         tasksRecyclerView.setLayoutManager(layoutManager);
         tasksRecyclerView.setHasFixedSize(true);
@@ -51,43 +50,38 @@ public class PendingTaskFragment extends Fragment implements TasksRVAdapter.Task
         tasksRecyclerView.setAdapter(tasksRVAdapter);
 
 
-        parentActivity.addTabsOnDataUpdateListener(new ProcessActivity.TabsOnDataUpdateListener() {
+        SwipeController swipeController = new SwipeController(new SwipeController.SwipeListener() {
             @Override
-            public void onDataUpdate() {
+            public void onRightSwipe(int position) {
+                TaskDescriptor rightSwipedTask = tasksRVAdapter.getTaskDescriptors().get(position);
+//                parentActivity.handleTaskRightSwipe(rightSwipedTask);
 
-                pendingTasks = filterData(parentActivity.getTaskDescriptorList());
-                setRVData(pendingTasks);
+                parentActivity.showToast("Upload task: " + rightSwipedTask.getName());
 
-                Log.d(TAG, "OnDataListener");
-                if (pendingTasks.getLength() != 0) {
-                    Log.d(TAG, "Name of first element:" + pendingTasks.getTaskDescriptors()[0].getName());
-                }
-
+                CloudHandler cloudHandler = CloudHandler.getInstance(parentActivity);
+                cloudHandler.upload(rightSwipedTask.getId());
 
             }
+
+            @Override
+            public void onLeftSwipe(int position) {
+                TaskDescriptor leftSwipedTask = tasksRVAdapter.getTaskDescriptors().get(position);
+                parentActivity.handleTaskRightSwipe(leftSwipedTask);
+            }
         });
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeController);
+        itemTouchHelper.attachToRecyclerView(tasksRecyclerView);
+
 
         return rootView;
     }
 
-    private TaskDescriptorList filterData(TaskDescriptorList taskDescriptorList) {
-        TaskDescriptorList filteredTasks = new TaskDescriptorList();
-        //iterate through tasks
-        for (TaskDescriptor task : taskDescriptorList.getTaskDescriptors()) {
+    //TODO EventBus update
 
-            if (task.getTaskStatus() == TaskDescriptor.TaskStatus.PENDING) {
-                filteredTasks.append(task);
-            }
-        }
-        return filteredTasks;
-    }
-
-    private void setRVData(TaskDescriptorList taskDescriptors) {
-        tasksRVAdapter.setTaskDescriptors(taskDescriptors);
-    }
-
-    private TaskDescriptorList getTaskDescriptor() {
-        return tasksRVAdapter.getTaskDescriptors();
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateRVData();
     }
 
     @Override
@@ -95,4 +89,15 @@ public class PendingTaskFragment extends Fragment implements TasksRVAdapter.Task
         parentActivity.handleTaskClick(task);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        TaskDBHandler dbHandler = TaskDBHandler.getInstance(parentActivity);
+    }
+
+    private void updateRVData() {
+        TaskDBHandler dbHandler = TaskDBHandler.getInstance(parentActivity);
+        List<TaskDescriptor> taskDescriptors = dbHandler.getTasks(TaskDescriptor.TaskStatus.PENDING);
+        tasksRVAdapter.setTaskDescriptors(taskDescriptors);
+    }
 }

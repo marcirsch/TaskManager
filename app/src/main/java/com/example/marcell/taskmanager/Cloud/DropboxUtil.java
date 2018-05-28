@@ -20,11 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
+//TODO in service
 public class DropboxUtil {
     private static final String TAG = DropboxUtil.class.getSimpleName();
 
-    private static final String ACCESS_TOKEN = "RPemIELM5LAAAAAAAAAABiQtW5mXhNaXPiESSLBfk322sGonRQB3GK-YtTmq2Thb";
-    private static final String CLIENT_IDENTIFIER = "dropbox/java-tutorial";
+
+    private static final String CLIENT_IDENTIFIER = "taskManager";
 
     DbxClientV2 mDbxClient;
     private DbxRequestConfig mDbxConfig;
@@ -36,9 +37,9 @@ public class DropboxUtil {
         void OnProgress(int percentage);
     }
 
-    public DropboxUtil() {
+    public DropboxUtil(final String accessToken) {
         mDbxConfig = new DbxRequestConfig(CLIENT_IDENTIFIER);
-        mDbxClient = new DbxClientV2(mDbxConfig, ACCESS_TOKEN);
+        mDbxClient = new DbxClientV2(mDbxConfig, accessToken);
     }
 
     public class UploadFileTask extends AsyncTask<String, Integer, FileMetadata> {

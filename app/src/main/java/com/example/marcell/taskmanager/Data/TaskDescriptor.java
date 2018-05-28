@@ -1,27 +1,64 @@
 package com.example.marcell.taskmanager.Data;
 
-import android.net.Uri;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class TaskDescriptor implements Serializable{
+
+@DatabaseTable(tableName = "task_descriptor")
+public class TaskDescriptor implements Serializable {
+
+    @DatabaseField(generatedId = true)
+    private int id;
+
+    @DatabaseField
     private String name;
+
+    @DatabaseField
     private String description;
+
+    @DatabaseField
     private String filePath;
-    private List<String> keywordList;
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    private SerializedList<String> keywordList;
+
+    @DatabaseField
     private TaskStatus taskStatus;
+
+    @DatabaseField
     private String completionTime;
+
+    @DatabaseField
+    private String startTime;
+
+    @DatabaseField
     private int completionPercentage;
 
-    public TaskDescriptor()  {
+    public TaskDescriptor() {
         this.name = "task";
         this.description = "description";
         this.filePath = null;
         this.keywordList = null;
         this.taskStatus = TaskStatus.PENDING;
         this.completionPercentage = 0;
+    }
+
+    public int getId() {
+
+        return id;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 
     public String getCompletionTime() {
@@ -39,7 +76,6 @@ public class TaskDescriptor implements Serializable{
     public void setCompletionPercentage(int completionPercentage) {
         this.completionPercentage = completionPercentage;
     }
-
 
 
     public String getName() {
@@ -70,8 +106,8 @@ public class TaskDescriptor implements Serializable{
         return keywordList;
     }
 
-    public void setKeywordList(List<String> keywordList) {
-        this.keywordList = keywordList;
+    public void setKeywordList(ArrayList<String> keywordList) {
+        this.keywordList = (SerializedList<String>) keywordList;
     }
 
     public TaskStatus getTaskStatus() {
@@ -87,5 +123,23 @@ public class TaskDescriptor implements Serializable{
         IN_PROGRESS,
         DONE,
         FAILED
+    }
+
+    @Override
+    public String toString() {
+        return "TaskDescriptor{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", filePath='" + filePath + '\'' +
+                ", keywordList=" + keywordList +
+                ", taskStatus=" + taskStatus +
+                ", completionTime='" + completionTime + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", completionPercentage=" + completionPercentage +
+                '}';
+    }
+
+    public static class SerializedList<E> extends ArrayList<E> implements Serializable {
     }
 }

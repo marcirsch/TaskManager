@@ -9,31 +9,32 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.marcell.taskmanager.Data.TaskDescriptor;
-import com.example.marcell.taskmanager.Data.TaskDescriptorList;
 import com.example.marcell.taskmanager.R;
 import com.example.marcell.taskmanager.PendingTaskFragment;
+
+import java.util.List;
 
 public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVViewHolder> {
 
     private static final String TAG = PendingTaskFragment.class.getSimpleName();
     private final TasksRVAOnClickListener taskOnClickListener;
-    private TaskDescriptorList taskDescriptors;
+    private List<TaskDescriptor> taskDescriptors;
+
 
     public TasksRVAdapter(TasksRVAOnClickListener taskOnClickListener) {
         this.taskOnClickListener = taskOnClickListener;
     }
 
-    public void setTaskDescriptors(TaskDescriptorList taskDescriptors) {
+    public void setTaskDescriptors(List<TaskDescriptor> taskDescriptors) {
 
         if (taskDescriptors != null) {
-            if (taskDescriptors.getLength() >= 0) {
                 this.taskDescriptors = taskDescriptors;
-            }
+
         }
         notifyDataSetChanged();
     }
 
-    public TaskDescriptorList getTaskDescriptors() {
+    public List<TaskDescriptor> getTaskDescriptors() {
         return taskDescriptors;
     }
 
@@ -49,8 +50,8 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
 
     @Override
     public void onBindViewHolder(TasksRVViewHolder holder, int position) {
-        if (position >= 0 && position < taskDescriptors.getLength()) {
-            TaskDescriptor task = taskDescriptors.getTaskDescriptors()[position];
+        if (position >= 0 && position < taskDescriptors.size()) {
+            TaskDescriptor task = taskDescriptors.get(position);
 
             String taskName = task.getName();
             String taskStatus = getStatusString(task.getTaskStatus());
@@ -67,7 +68,7 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
     @Override
     public int getItemCount() {
         if (taskDescriptors != null) {
-            return taskDescriptors.getTaskDescriptors().length;
+            return taskDescriptors.size();
         } else {
             Log.d(TAG, "getItemCount: taskDescriptors is null");
             return 0;
@@ -117,7 +118,7 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
             int adapterPosition = getAdapterPosition();
 
             if (adapterPosition != RecyclerView.NO_POSITION) {
-                taskOnClickListener.onClick(taskDescriptors.getTaskDescriptors()[adapterPosition],adapterPosition, v);
+                taskOnClickListener.onClick(taskDescriptors.get(adapterPosition),adapterPosition, v);
             } else {
                 Log.d(TAG, "OnClick method: NO_POSITION in RecyclerView");
             }
