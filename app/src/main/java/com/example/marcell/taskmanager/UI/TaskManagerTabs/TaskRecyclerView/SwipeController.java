@@ -1,4 +1,4 @@
-package com.example.marcell.taskmanager.UI.TaskManagerTabs.RecyclerView;
+package com.example.marcell.taskmanager.UI.TaskManagerTabs.TaskRecyclerView;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
@@ -79,10 +79,8 @@ public class SwipeController extends Callback {
                     int position = viewHolder.getAdapterPosition();
                     if(dX < -swipeThreshold){
                         swipeListener.onLeftSwipe(position);
-                        return true;
                     }else if(dX > swipeThreshold){
                         swipeListener.onRightSwipe(position);
-                        return true;
                     }
                 }
                 return false;

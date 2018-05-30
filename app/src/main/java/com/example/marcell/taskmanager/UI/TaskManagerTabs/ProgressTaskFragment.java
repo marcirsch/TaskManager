@@ -20,8 +20,8 @@ import com.example.marcell.taskmanager.Data.UserPreferences;
 import com.example.marcell.taskmanager.R;
 import com.example.marcell.taskmanager.UI.EditTaskActivity;
 import com.example.marcell.taskmanager.UI.TaskManagerActivity;
-import com.example.marcell.taskmanager.UI.TaskManagerTabs.RecyclerView.SwipeController;
-import com.example.marcell.taskmanager.UI.TaskManagerTabs.RecyclerView.TasksRVAdapter;
+import com.example.marcell.taskmanager.UI.TaskManagerTabs.TaskRecyclerView.SwipeController;
+import com.example.marcell.taskmanager.UI.TaskManagerTabs.TaskRecyclerView.TasksRVAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

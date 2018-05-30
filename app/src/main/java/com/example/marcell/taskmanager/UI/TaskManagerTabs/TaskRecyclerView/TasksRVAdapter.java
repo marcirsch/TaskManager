@@ -1,4 +1,4 @@
-package com.example.marcell.taskmanager.UI.TaskManagerTabs.RecyclerView;
+package com.example.marcell.taskmanager.UI.TaskManagerTabs.TaskRecyclerView;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.marcell.taskmanager.Data.TaskDescriptor;
-import com.example.marcell.taskmanager.Data.UserPreferences;
 import com.example.marcell.taskmanager.UI.TaskManagerTabs.PendingTaskFragment;
 import com.example.marcell.taskmanager.R;
 

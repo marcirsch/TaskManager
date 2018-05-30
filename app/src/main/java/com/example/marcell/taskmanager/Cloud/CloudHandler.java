@@ -39,64 +39,21 @@ public final class CloudHandler {
         dbHandler.addTask(task);
     }
 
-
-
     public void upload(int ID, int delay) {
         TaskDBHandler dbHandler = TaskDBHandler.getInstance(context);
-
         TaskDescriptor task = dbHandler.getTask(ID);
-        task.start(delay);
-        updateTaskInDB(task);
 
         upload(task, UserPreferences.getRemoteFolder(context), delay);
     }
 
 
-    public void upload(final TaskDescriptor task, String remoteFolder, int delay) {
-
-        task.start(delay);
-        updateTaskInDB(task);
-        TaskUpdateEvent.notifyOnDataUpdate(task);
-
-        DropboxUtil.UploadFileTask uploadFileTask = dropbox.new UploadFileTask(delay, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
-            @Override
-            public void onStart() {
-                task.start(0);
-                updateTaskInDB(task);
-
-                TaskUpdateEvent.notifyOnDataUpdate(task);
-
-            }
-
-            @Override
-            public void onSuccess(FileMetadata object) {
-                task.completed();
-                updateTaskInDB(task);
-
-                TaskUpdateEvent.notifyOnDataUpdate(task);
-                Log.i(TAG, "Successful upload!");
-            }
-
-            @Override
-            public void onFailed(Exception e) {
-                e.printStackTrace();
-
-                task.failed();
-                updateTaskInDB(task);
-
-                TaskUpdateEvent.notifyOnDataUpdate(task);
-            }
-
-            @Override
-            public void onProgress(int percentage) {
-                task.progress(percentage);
-                updateTaskInDB(task);
-
-                TaskUpdateEvent.notifyOnDataUpdate(task);
-            }
-        });
-
-        uploadFileTask.execute(task.getFilePath(), remoteFolder);
+    public void upload(TaskDescriptor task, String remoteFolder, int delay) {
+        CloudBindHelper cloudBindHelper = CloudBindHelper.getInstance();
+        if (cloudBindHelper.isBound()) {
+            cloudBindHelper.getCloudService().upload(dropbox, task, remoteFolder, delay);
+        } else {
+            Log.e(TAG, "CloudService not bound");
+        }
     }
 
 

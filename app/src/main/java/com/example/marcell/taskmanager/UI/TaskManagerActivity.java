@@ -15,10 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.marcell.taskmanager.Cloud.CloudBindHelper;
 import com.example.marcell.taskmanager.Cloud.CloudHandler;
-import com.example.marcell.taskmanager.DataBase.TaskDBHandler;
 import com.example.marcell.taskmanager.Data.TaskUpdateEvent;
 import com.example.marcell.taskmanager.Data.UserPreferences;
+import com.example.marcell.taskmanager.DataBase.TaskDBHandler;
 import com.example.marcell.taskmanager.Notification.TaskNotificationService;
 import com.example.marcell.taskmanager.R;
 import com.example.marcell.taskmanager.UI.TaskManagerTabs.TabUtilities.CustomViewPager;
@@ -40,15 +41,7 @@ public class TaskManagerActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mTabAdapter = new TabAdapter(getSupportFragmentManager());
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (CustomViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mTabAdapter);
-
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        setupTabs();
 
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -62,30 +55,36 @@ public class TaskManagerActivity extends AppCompatActivity {
         });
 
 
+        //Start notification service
         startService(new Intent(TaskManagerActivity.this, TaskNotificationService.class));
 
         CloudHandler.getInstance(this).authenticateUser();
 
         this.requestPermission();
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        CloudBindHelper.getInstance().bindToService(this);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == EditTaskActivity.REQUEST_CODE && resultCode == RESULT_OK && data != null){
-            if(data.hasExtra("TaskID")){
-                EventBus.getDefault().post(new TaskUpdateEvent(data.getIntExtra("TaskID",0)));
+        if (requestCode == EditTaskActivity.REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            if (data.hasExtra("TaskID")) {
+                EventBus.getDefault().post(new TaskUpdateEvent(data.getIntExtra("TaskID", 0)));
             }
         }
     }
 
     private void requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
-            if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
-            }else{
+            } else {
                 UserPreferences.setStoragePermissionGranted();
             }
         }
@@ -123,6 +122,12 @@ public class TaskManagerActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        CloudBindHelper.getInstance().unbindFromService(this);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         TaskDBHandler.close();
@@ -135,5 +140,16 @@ public class TaskManagerActivity extends AppCompatActivity {
         }
         toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    private void setupTabs() {
+        mTabAdapter = new TabAdapter(getSupportFragmentManager());
+
+        mViewPager = (CustomViewPager) findViewById(R.id.container);
+        mViewPager.setAdapter(mTabAdapter);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
     }
 }

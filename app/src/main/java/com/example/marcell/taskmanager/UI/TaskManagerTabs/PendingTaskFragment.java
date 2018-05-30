@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.marcell.taskmanager.Cloud.CloudBindHelper;
 import com.example.marcell.taskmanager.Cloud.CloudHandler;
 import com.example.marcell.taskmanager.DataBase.TaskDBHandler;
 import com.example.marcell.taskmanager.Data.TaskDescriptor;
@@ -20,8 +21,8 @@ import com.example.marcell.taskmanager.Data.UserPreferences;
 import com.example.marcell.taskmanager.R;
 import com.example.marcell.taskmanager.UI.EditTaskActivity;
 import com.example.marcell.taskmanager.UI.TaskManagerActivity;
-import com.example.marcell.taskmanager.UI.TaskManagerTabs.RecyclerView.SwipeController;
-import com.example.marcell.taskmanager.UI.TaskManagerTabs.RecyclerView.TasksRVAdapter;
+import com.example.marcell.taskmanager.UI.TaskManagerTabs.TaskRecyclerView.SwipeController;
+import com.example.marcell.taskmanager.UI.TaskManagerTabs.TaskRecyclerView.TasksRVAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

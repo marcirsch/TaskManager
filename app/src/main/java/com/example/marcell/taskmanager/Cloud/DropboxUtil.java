@@ -32,11 +32,8 @@ public class DropboxUtil {
 
     public interface OnAsyncTaskEventListener<T> {
         void onStart();
-
         void onSuccess(T object);
-
         void onFailed(Exception e);
-
         void onProgress(int percentage);
     }
 
@@ -45,14 +42,15 @@ public class DropboxUtil {
         mDbxClient = new DbxClientV2(mDbxConfig, accessToken);
     }
 
-    public class UploadFileTask extends AsyncTask<String, Integer, FileMetadata> {
+
+    public class UploadFile extends AsyncTask<String, Integer, FileMetadata> {
 
         private final OnAsyncTaskEventListener<FileMetadata> callback;
         private Exception mException;
         private int delay;
 
 
-        public UploadFileTask(int delay, OnAsyncTaskEventListener<FileMetadata> callback) {
+        public UploadFile(int delay, OnAsyncTaskEventListener<FileMetadata> callback) {
             this.callback = callback;
             this.delay = delay;
 
@@ -61,6 +59,92 @@ public class DropboxUtil {
             }
         }
 
+
+        @Override
+        protected FileMetadata doInBackground(String... params) {
+
+            if (delay != 0) {
+                try {
+                    Thread.sleep(delay * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            publishProgress(0);
+
+            String localUriPath = params[0];
+            Uri localUri = Uri.parse(localUriPath);
+            File localFile = new File(localUri.getPath());
+            Log.d(TAG, "File uri: " + localUri);
+
+
+            if (localFile.exists()) {
+                String remoteFolderPath = params[1];
+
+                // Note - this is not ensuring the name is a valid dropbox file name
+                String remoteFileName = localFile.getName();
+                try {
+                    InputStream inputStream = new FileInputStream(localFile);
+                    UploadBuilder uploadBuilder = mDbxClient.files().uploadBuilder(remoteFolderPath + "/" + remoteFileName)
+                            .withMode(WriteMode.OVERWRITE);
+
+
+                    FileMetadata fileMetadata = uploadBuilder.uploadAndFinish(new ProgressUploadStream(inputStream, localFile.length(), new ProgressUploadStream.OnProgressListener() {
+                        @Override
+                        public void onProgress(int percentage) {
+                            publishProgress(percentage);
+                        }
+                    }));
+
+
+                    return fileMetadata;
+                } catch (DbxException | IOException e) {
+                    mException = e;
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            if (values[0] == 0) {
+                callback.onStart();
+            }
+            callback.onProgress(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(FileMetadata result) {
+            super.onPostExecute(result);
+            if (mException != null) {
+                callback.onFailed(mException);
+            } else if (result == null) {
+                callback.onFailed(null);
+            } else {
+                callback.onSuccess(result);
+            }
+        }
+    }
+
+
+    public class UploadChunkedFile extends AsyncTask<String, Integer, FileMetadata> {
+
+        private final OnAsyncTaskEventListener<FileMetadata> callback;
+        private Exception mException;
+        private int delay;
+
+
+
+        public UploadChunkedFile(int delay, String filepath, OnAsyncTaskEventListener<FileMetadata> callback) {
+            this.callback = callback;
+            this.delay = delay;
+
+            if (delay < 0) {
+                this.delay = 0;
+            }
+        }
 
         @Override
         protected FileMetadata doInBackground(String... params) {
