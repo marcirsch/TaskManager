@@ -59,8 +59,18 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
 
             holder.taskNameTextView.setText(taskName);
             holder.taskStatus.setText(taskStatus);
-            holder.taskPercentage.setText(taskPercent);
-            holder.taskCompletionTime.setText(taskTime);
+
+            if(task.getTaskStatus() == TaskDescriptor.TaskStatus.IN_PROGRESS || task.getTaskStatus() == TaskDescriptor.TaskStatus.DONE){
+                holder.taskPercentage.setText(taskPercent);
+                holder.taskPercentage.setVisibility(View.VISIBLE);
+                holder.taskCompletionTime.setText(taskTime);
+                holder.taskCompletionTime.setVisibility(View.VISIBLE);
+            }else{
+                holder.taskPercentage.setVisibility(View.INVISIBLE);
+                holder.taskCompletionTime.setVisibility(View.INVISIBLE);
+            }
+
+
         } else {
             Log.d(TAG, "onBindViewHolder: invalid position: " + String.valueOf(position));
         }

@@ -32,11 +32,8 @@ public class DropboxUtil {
 
     public interface OnAsyncTaskEventListener<T> {
         void onStart();
-
         void onSuccess(T object);
-
         void onFailed(Exception e);
-
         void onProgress(int percentage);
     }
 
@@ -60,7 +57,6 @@ public class DropboxUtil {
                 this.delay = 0;
             }
         }
-
 
         @Override
         protected FileMetadata doInBackground(String... params) {
