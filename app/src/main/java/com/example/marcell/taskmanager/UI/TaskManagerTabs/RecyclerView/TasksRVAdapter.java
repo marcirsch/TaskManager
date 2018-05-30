@@ -1,4 +1,4 @@
-package com.example.marcell.taskmanager.Utils;
+package com.example.marcell.taskmanager.UI.TaskManagerTabs.RecyclerView;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,8 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.marcell.taskmanager.Data.TaskDescriptor;
+import com.example.marcell.taskmanager.Data.UserPreferences;
+import com.example.marcell.taskmanager.UI.TaskManagerTabs.PendingTaskFragment;
 import com.example.marcell.taskmanager.R;
-import com.example.marcell.taskmanager.PendingTaskFragment;
 
 import java.util.List;
 
@@ -25,17 +26,15 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
         this.taskOnClickListener = taskOnClickListener;
     }
 
-    public void setTaskDescriptors(List<TaskDescriptor> taskDescriptors) {
-
-        if (taskDescriptors != null) {
-                this.taskDescriptors = taskDescriptors;
-
-        }
-        notifyDataSetChanged();
-    }
-
     public List<TaskDescriptor> getTaskDescriptors() {
         return taskDescriptors;
+    }
+
+    public void setTaskDescriptors(List<TaskDescriptor> taskDescriptors) {
+        if (taskDescriptors != null) {
+                this.taskDescriptors = taskDescriptors;
+        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -54,12 +53,14 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
             TaskDescriptor task = taskDescriptors.get(position);
 
             String taskName = task.getName();
-            String taskStatus = getStatusString(task.getTaskStatus());
+            String taskStatus = TaskDescriptor.getStatusString(task.getTaskStatus());
             String taskPercent = String.valueOf(task.getCompletionPercentage()) + "%";
+            String taskTime = String.valueOf(task.getCompletionTime()/1000) + "s";
 
             holder.taskNameTextView.setText(taskName);
             holder.taskStatus.setText(taskStatus);
             holder.taskPercentage.setText(taskPercent);
+            holder.taskCompletionTime.setText(taskTime);
         } else {
             Log.d(TAG, "onBindViewHolder: invalid position: " + String.valueOf(position));
         }
@@ -75,25 +76,6 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
         }
     }
 
-    private String getStatusString(TaskDescriptor.TaskStatus status){
-        String statusString = "";
-        switch (status){
-            case DONE:
-                statusString = "Done";
-                break;
-            case PENDING:
-                statusString = "Pending";
-                break;
-            case IN_PROGRESS:
-                statusString = "In progress";
-                break;
-            case FAILED:
-                statusString = "Failed";
-            default:
-                break;
-        }
-        return statusString;
-    }
 
     public interface TasksRVAOnClickListener {
         void onClick(TaskDescriptor task,int position, View v);
@@ -103,6 +85,7 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
         public final TextView taskNameTextView;
         public final TextView taskStatus;
         public final TextView taskPercentage;
+        public final TextView taskCompletionTime;
 
         public TasksRVViewHolder(View itemView) {
             super(itemView);
@@ -110,6 +93,7 @@ public class TasksRVAdapter extends RecyclerView.Adapter<TasksRVAdapter.TasksRVV
             taskNameTextView = (TextView) itemView.findViewById(R.id.tv_rv_task_name);
             taskStatus = (TextView) itemView.findViewById(R.id.tv_rv_status);
             taskPercentage = (TextView) itemView.findViewById(R.id.tv_rv_percentage);
+            taskCompletionTime = (TextView) itemView.findViewById(R.id.tv_rv_completion_time) ;
             itemView.setOnClickListener(this);
         }
 

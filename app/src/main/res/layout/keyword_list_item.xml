@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:orientation="horizontal"
+    android:padding="@dimen/keyword_item_padding">
+
+    <FrameLayout
+        android:id="@+id/fl_new_keyword"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="@dimen/keyword_add_button_radius"
+                android:layout_height="@dimen/keyword_add_button_radius"
+                android:id="@+id/bt_add"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/add_button"
+                android:text="+"
+                android:textColor="#ffffff" />
+
+            <EditText
+                android:id="@+id/ed_new_keyword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:hint="@string/keyword_hint"
+                android:inputType="text" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/fl_existing_keyword"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bt_remove"
+                android:layout_width="@dimen/keyword_add_button_radius"
+                android:layout_height="@dimen/keyword_add_button_radius"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/remove_button"
+                android:text="-"
+                android:textColor="#ffffff" />
+
+            <TextView
+                android:id="@+id/tv_keyword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Keyword1" />
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>

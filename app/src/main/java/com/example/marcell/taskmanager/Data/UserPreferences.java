@@ -1,35 +1,73 @@
 package com.example.marcell.taskmanager.Data;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
+import com.example.marcell.taskmanager.R;
+
 public final class UserPreferences {
 
+
     private static String dBxUploadFolder = "/UploadFolder";
-    private static String DROPBOX_ACCESS_TOKEN = "RPemIELM5LAAAAAAAAAABiQtW5mXhNaXPiESSLBfk322sGonRQB3GK-YtTmq2Thb";
+    private static String dBxAccessToken = "RPemIELM5LAAAAAAAAAABiQtW5mXhNaXPiESSLBfk322sGonRQB3GK-YtTmq2Thb";
 
-    private static UserPreferences instance;
 
-    private UserPreferences() {
+    private static boolean storagePermissionGranted = false;
+    private static boolean authenticationSuccessful = false;
+    private static int taskDelayedStartDelay = 5; //seconds
+
+    private static SharedPreferences sharedPreferences;
+
+    private static void getSharedPreferences(Context context) {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public static UserPreferences getInstance() {
-        if(instance == null){
-            instance = new UserPreferences();
+    public static String getUserToken(Context context){
+        getSharedPreferences(context);
+        return sharedPreferences.getString("dropbox_access_token", context.getString(R.string.preferences_dropbox_token_default));
+    }
+
+    public static int getDelayedTaskTime(Context context){
+        getSharedPreferences(context);
+        return Integer.parseInt(sharedPreferences.getString("delayed_upload_time", context.getString(R.string.preferences_upload_default)));
+    }
+
+    public static String getRemoteFolder(Context context){
+        getSharedPreferences(context);
+        String folder= sharedPreferences.getString("dropbox_remote_folder", context.getString(R.string.preferences_dropbox_folder_default));
+        if(folder.length() != 0) {
+            if (folder.charAt(0) != '/') {
+                folder = "/" + folder;
+            }
         }
-        return instance;
+        Log.d("UserPreferences","Remote folder: " + folder );
+        return folder;
     }
 
-    public static String getdBxUploadFolder() {
-        return dBxUploadFolder;
+
+
+    public static boolean isAuthenticationSuccessful() {
+        return authenticationSuccessful;
     }
 
-    public static void setdBxUploadFolder(String dBxUploadFolder) {
-        UserPreferences.dBxUploadFolder = dBxUploadFolder;
+    public static void setAuthenticationSuccessful(boolean authenticationSuccessful) {
+        UserPreferences.authenticationSuccessful = authenticationSuccessful;
     }
 
-    public static String getDropboxAccessToken() {
-        return DROPBOX_ACCESS_TOKEN;
+    public static boolean isStoragePermissionGranted() {
+        return storagePermissionGranted;
     }
 
-    public static void setDropboxAccessToken(String dropboxAccessToken) {
-        DROPBOX_ACCESS_TOKEN = dropboxAccessToken;
+    public static void setStoragePermissionGranted() {
+        UserPreferences.storagePermissionGranted = true;
     }
+
+    public static void resetStoragePermissionGranted() {
+        UserPreferences.storagePermissionGranted = false;
+    }
+
+
+
 }

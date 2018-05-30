@@ -4,9 +4,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.dropbox.core.v2.files.FileMetadata;
-import com.example.marcell.taskmanager.Data.UserPreferences;
-import com.example.marcell.taskmanager.Data.TaskDBHandler;
+import com.example.marcell.taskmanager.DataBase.TaskDBHandler;
 import com.example.marcell.taskmanager.Data.TaskDescriptor;
+import com.example.marcell.taskmanager.Data.TaskUpdateEvent;
+import com.example.marcell.taskmanager.Data.UserPreferences;
 
 public final class CloudHandler {
     private static final String TAG = CloudHandler.class.getSimpleName();
@@ -16,91 +17,111 @@ public final class CloudHandler {
     private static Context context;
     private static DropboxUtil dropbox;
 
-    private CloudHandler(final Context context){
+    private CloudHandler(final Context context) {
         this.context = context;
-        dropbox = new DropboxUtil(UserPreferences.getDropboxAccessToken());
+        String accessToken = UserPreferences.getUserToken(context);
+        Log.d(TAG, "token: " + accessToken);
+        dropbox = new DropboxUtil(accessToken);
 
         authenticateUser();
     }
 
     public synchronized static CloudHandler getInstance(Context context) {
-        if(instance == null){
+        if (instance == null) {
             instance = new CloudHandler(context);
 
         }
         return instance;
     }
 
-    public static void upload(int ID){
+    private void updateTaskInDB(TaskDescriptor task) {
         TaskDBHandler dbHandler = TaskDBHandler.getInstance(context);
-
-        TaskDescriptor task = TaskDBHandler.getTask(ID);
-        upload(task, UserPreferences.getdBxUploadFolder());
+        dbHandler.addTask(task);
     }
 
 
 
-    public static void upload(final TaskDescriptor task, String remoteFolder) {
-        task.setTaskStatus(TaskDescriptor.TaskStatus.IN_PROGRESS);
+    public void upload(int ID, int delay) {
+        TaskDBHandler dbHandler = TaskDBHandler.getInstance(context);
+
+        TaskDescriptor task = dbHandler.getTask(ID);
+        task.start(delay);
         updateTaskInDB(task);
 
-        DropboxUtil.UploadFileTask uploadFileTask = dropbox.new UploadFileTask(context, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
+        upload(task, UserPreferences.getRemoteFolder(context), delay);
+    }
+
+
+    public void upload(final TaskDescriptor task, String remoteFolder, int delay) {
+
+        task.start(delay);
+        updateTaskInDB(task);
+        TaskUpdateEvent.notifyOnDataUpdate(task);
+
+        DropboxUtil.UploadFileTask uploadFileTask = dropbox.new UploadFileTask(delay, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
             @Override
-            public void OnSuccess(FileMetadata object) {
-                task.setTaskStatus(TaskDescriptor.TaskStatus.DONE);
-                task.setCompletionPercentage(100);
-
+            public void onStart() {
+                task.start(0);
                 updateTaskInDB(task);
-                Log.i(TAG,"Successful upload!");
 
-                //TODO Eventbus notification
+                TaskUpdateEvent.notifyOnDataUpdate(task);
+
             }
 
             @Override
-            public void OnFailure(Exception e) {
+            public void onSuccess(FileMetadata object) {
+                task.completed();
+                updateTaskInDB(task);
+
+                TaskUpdateEvent.notifyOnDataUpdate(task);
+                Log.i(TAG, "Successful upload!");
+            }
+
+            @Override
+            public void onFailed(Exception e) {
                 e.printStackTrace();
-                task.setTaskStatus(TaskDescriptor.TaskStatus.FAILED);
 
+                task.failed();
                 updateTaskInDB(task);
 
-                //TODO Eventbus notification
+                TaskUpdateEvent.notifyOnDataUpdate(task);
             }
 
             @Override
-            public void OnProgress(int percentage) {
-                task.setCompletionPercentage(percentage);
-
+            public void onProgress(int percentage) {
+                task.progress(percentage);
                 updateTaskInDB(task);
 
-                //TODO Eventbus notification
+                TaskUpdateEvent.notifyOnDataUpdate(task);
             }
         });
 
         uploadFileTask.execute(task.getFilePath(), remoteFolder);
     }
 
-    private static void updateTaskInDB(TaskDescriptor task){
-        TaskDBHandler dbHandler = TaskDBHandler.getInstance(context);
-        dbHandler.addTask(task);
-    }
 
-
-    public static void authenticateUser(){
-        DropboxUtil.GetUserNameTask userNameTask = dropbox.new GetUserNameTask(context, new DropboxUtil.OnAsyncTaskEventListener<String>() {
+    public void authenticateUser() {
+        DropboxUtil.GetUserNameTask userNameTask = dropbox.new GetUserNameTask(new DropboxUtil.OnAsyncTaskEventListener<String>() {
             @Override
-            public void OnSuccess(String object) {
+            public void onStart() {
+            }
+
+            @Override
+            public void onSuccess(String object) {
 //                showToast("Dropbox authentication successful. Name:" + object);
-                Log.i(TAG,"Successful Dropbox authentication, user name: " + object);
+                Log.i(TAG, "Successful Dropbox authentication, user name: " + object);
+                UserPreferences.setAuthenticationSuccessful(true);
             }
 
             @Override
-            public void OnFailure(Exception e) {
-                Log.i(TAG,"Dropbox authentication failed");
+            public void onFailed(Exception e) {
+                Log.i(TAG, "Dropbox authentication failed");
                 e.printStackTrace();
+                UserPreferences.setAuthenticationSuccessful(true);
             }
 
             @Override
-            public void OnProgress(int percentage) {
+            public void onProgress(int percentage) {
             }
         });
         userNameTask.execute();

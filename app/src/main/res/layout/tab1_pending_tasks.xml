@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
@@ -8,7 +7,7 @@
     android:orientation="vertical"
     android:clipToPadding="false"
     android:overScrollMode="never"
-    tools:context=".ProcessActivity">
+    tools:context=".UI.TaskManagerActivity">
 
     <TextView
         android:id="@+id/tv_section_label"
@@ -22,7 +21,8 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_task_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="8dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        tools:listitem="@layout/task_list_item" />
 
 </LinearLayout>

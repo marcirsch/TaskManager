@@ -18,9 +18,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 
-//TODO in service
+
 public class DropboxUtil {
     private static final String TAG = DropboxUtil.class.getSimpleName();
 
@@ -32,9 +31,13 @@ public class DropboxUtil {
 
 
     public interface OnAsyncTaskEventListener<T> {
-        void OnSuccess(T object);
-        void OnFailure(Exception e);
-        void OnProgress(int percentage);
+        void onStart();
+
+        void onSuccess(T object);
+
+        void onFailed(Exception e);
+
+        void onProgress(int percentage);
     }
 
     public DropboxUtil(final String accessToken) {
@@ -44,26 +47,40 @@ public class DropboxUtil {
 
     public class UploadFileTask extends AsyncTask<String, Integer, FileMetadata> {
 
-        private final Context mContext;
-        private final OnAsyncTaskEventListener<FileMetadata> mCallback;
+        private final OnAsyncTaskEventListener<FileMetadata> callback;
         private Exception mException;
+        private int delay;
 
 
-        public UploadFileTask(Context context, OnAsyncTaskEventListener<FileMetadata> callback) {
-            mContext = context;
-            mCallback = callback;
+        public UploadFileTask(int delay, OnAsyncTaskEventListener<FileMetadata> callback) {
+            this.callback = callback;
+            this.delay = delay;
+
+            if (delay < 0) {
+                this.delay = 0;
+            }
         }
 
 
         @Override
         protected FileMetadata doInBackground(String... params) {
+
+            if (delay != 0) {
+                try {
+                    Thread.sleep(delay * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            publishProgress(0);
+
             String localUriPath = params[0];
             Uri localUri = Uri.parse(localUriPath);
             File localFile = new File(localUri.getPath());
             Log.d(TAG, "File uri: " + localUri);
 
 
-            if(localFile.exists()) {
+            if (localFile.exists()) {
                 String remoteFolderPath = params[1];
 
                 // Note - this is not ensuring the name is a valid dropbox file name
@@ -88,25 +105,27 @@ public class DropboxUtil {
                 }
             }
 
-
             return null;
         }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            mCallback.OnProgress(values[0]);
+            if (values[0] == 0) {
+                callback.onStart();
+            }
+            callback.onProgress(values[0]);
         }
 
         @Override
         protected void onPostExecute(FileMetadata result) {
             super.onPostExecute(result);
             if (mException != null) {
-                mCallback.OnFailure(mException);
+                callback.onFailed(mException);
             } else if (result == null) {
-                mCallback.OnFailure(null);
+                callback.onFailed(null);
             } else {
-                mCallback.OnSuccess(result);
+                callback.onSuccess(result);
             }
         }
     }
@@ -114,18 +133,18 @@ public class DropboxUtil {
 
     public class GetUserNameTask extends AsyncTask<Void, Void, String> {
         private OnAsyncTaskEventListener<String> callback;
-        private final Context context;
+
         public Exception exception;
 
 
-        public GetUserNameTask(Context context, OnAsyncTaskEventListener<String> callback) {
-            this.context = context;
+        public GetUserNameTask(OnAsyncTaskEventListener<String> callback) {
             this.callback = callback;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            callback.onStart();
         }
 
         @Override
@@ -146,19 +165,19 @@ public class DropboxUtil {
         protected void onPostExecute(String s) {
             if (callback != null) {
                 if (exception == null) {
-                    callback.OnSuccess(s);
+                    callback.onSuccess(s);
                 } else {
-                    callback.OnFailure(exception);
+                    callback.onFailed(exception);
                 }
             }
         }
     }
 
 
-    public static String getPath(Context context, Uri uri) throws URISyntaxException {
+    public static String getPath(Context context, Uri uri) {
         if ("content".equalsIgnoreCase(uri.getScheme())) {
-            String[] projection = { "_data" };
-            Cursor cursor = null;
+            String[] projection = {"_data"};
+            Cursor cursor;
 
             try {
                 cursor = context.getContentResolver().query(uri, projection, null, null, null);
@@ -167,11 +186,9 @@ public class DropboxUtil {
                     return cursor.getString(column_index);
                 }
             } catch (Exception e) {
-                // Eat it
                 e.printStackTrace();
             }
-        }
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
 

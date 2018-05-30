@@ -1,4 +1,4 @@
-package com.example.marcell.taskmanager.Utils;
+package com.example.marcell.taskmanager.UI.TaskManagerTabs.TabUtilities;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

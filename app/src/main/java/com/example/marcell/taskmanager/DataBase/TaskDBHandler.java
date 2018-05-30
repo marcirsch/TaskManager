@@ -1,14 +1,13 @@
-package com.example.marcell.taskmanager.Data;
+package com.example.marcell.taskmanager.DataBase;
 
 import android.content.Context;
 
+import com.example.marcell.taskmanager.Data.TaskDescriptor;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public final class TaskDBHandler implements Serializable{

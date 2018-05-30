@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/preferences_dropbox_category">
+
+
+        <EditTextPreference
+            android:defaultValue="@string/preferences_dropbox_folder_default"
+            android:key="dropbox_remote_folder"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/preferences_dropbox_folder_summary"
+            android:title="@string/preferences_dropbox_folder_title"
+            android:inputType="text"/>
+
+        <EditTextPreference
+            android:defaultValue="@string/preferences_dropbox_token_default"
+            android:key="dropbox_access_token"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/preferences_dropbox_token_summary"
+            android:title="@string/preferences_dropbox_token_title"
+            android:inputType="text"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/preferences_upload_category">
+        <EditTextPreference
+            android:defaultValue="@string/preferences_upload_default"
+            android:key="delayed_upload_time"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/preferences_upload_summary"
+            android:title="@string/preferences_upload_title"
+            android:inputType="numberDecimal"/>
+    </PreferenceCategory>
+</PreferenceScreen>

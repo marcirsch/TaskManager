@@ -1,4 +1,4 @@
-package com.example.marcell.taskmanager.Utils;
+package com.example.marcell.taskmanager.UI.TaskManagerTabs.TabUtilities;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -7,8 +7,8 @@ import android.util.SparseArray;
 import android.view.ViewGroup;
 
 import com.example.marcell.taskmanager.Data.TaskDescriptor;
-import com.example.marcell.taskmanager.PendingTaskFragment;
-import com.example.marcell.taskmanager.TerminatedTaskFragment;
+import com.example.marcell.taskmanager.UI.TaskManagerTabs.PendingTaskFragment;
+import com.example.marcell.taskmanager.UI.TaskManagerTabs.ProgressTaskFragment;
 
 /**
  * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -53,7 +53,7 @@ public class TabAdapter extends FragmentPagerAdapter {
                 returnItem = new PendingTaskFragment();
                 break;
             case 1:
-                returnItem = new TerminatedTaskFragment();
+                returnItem = new ProgressTaskFragment();
                 break;
             default:
                 break;

@@ -5,20 +5,44 @@
     <!--Action Bar strings-->
     <string name="item_pending">Pending</string>
     <string name="item_done">Done</string>
-    <string name="title_activity_process">ProcessActivity</string>
-    <string name="tab_text_1">Pending</string>
-    <string name="tab_text_2">Progress</string>
+    <string name="pending_task_tab_title">Pending</string>
+    <string name="progress_task_tab_title">Progress</string>
     <string name="action_settings">Settings</string>
 
+    <!--Pending tab-->
+    <string name="pending_view_title">List of tasks to be uploaded</string>
+
+    <!--Progress tab-->
+    <string name="progress_view_title">List of tasks in progress</string>
+
     <!--AddEditTaskActivity strings-->
-    <string name="addedittask_toolbar_title">Edit task</string>
-    <string name="addedittask_title">Add or Edit New Task</string>
-    <string name="addedittask_name">Name:</string>
-    <string name="addedittask_description">Description</string>
-    <string name="addedittask_filepath">File to upload</string>
-    <string name="addedittask_browse_button">Browse</string>
-    <string name="addedittask_save_menu">Save</string>
-    <string name="addedittask_invalid_name">Task name field cannot be empty</string>
-    <string name="addedittask_invalid_filepath">Invalid file path</string>
-    <string name="addedittask_invalid_keywords">Cannot add more than 10 keywords</string>
+    <string name="edit_task_toolbar_edit_title">Edit task</string>
+    <string name="edit_task_toolbar_add_title">Add task</string>
+    <string name="edit_task_title">Task Details</string>
+    <string name="edit_task_name">Name:</string>
+    <string name="edit_task_description">Description</string>
+    <string name="edit_task_filepath">File to upload</string>
+    <string name="edit_task_browse_button">Browse</string>
+    <string name="edit_task_save_menu">Save</string>
+    <string name="edit_task_invalid_name">Task name field cannot be empty</string>
+    <string name="edit_task_invalid_filepath">Invalid file path</string>
+    <string name="edit_task_invalid_keywords">Cannot add more than 10 keywords</string>
+
+    <!--Oreo notification settings-->
+    <string name="channel_name">Task Manager notification</string>
+    <string name="channel_description">Enable or Disable task update notifications</string>
+    <string name="keyword_hint">Add keyword</string>
+
+    <!--User Preferences-->
+    <string name="preferences_dropbox_folder_default">UploadFolder</string>
+    <string name="preferences_dropbox_folder_summary">Remote folder path</string>
+    <string name="preferences_dropbox_folder_title">Dropbox remote folder</string>
+    <string name="preferences_dropbox_token_default">RPemIELM5LAAAAAAAAAABiQtW5mXhNaXPiESSLBfk322sGonRQB3GK-YtTmq2Thb</string>
+    <string name="preferences_dropbox_token_summary">Generate access token on Dropbox website</string>
+    <string name="preferences_dropbox_token_title">Dropbox access token</string>
+    <string name="preferences_dropbox_category">Dropbox</string>
+    <string name="preferences_upload_category">Upload settings</string>
+    <string name="preferences_upload_default">60</string>
+    <string name="preferences_upload_summary">Delay before send on left swipe</string>
+    <string name="preferences_upload_title">Delayed upload time</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.marcell.taskmanager.Utils;
+package com.example.marcell.taskmanager.UI.TaskManagerTabs.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
@@ -7,7 +7,9 @@ import android.support.v7.widget.helper.ItemTouchHelper.Callback;
 import android.view.MotionEvent;
 import android.view.View;
 
-import static android.support.v7.widget.helper.ItemTouchHelper.*;
+import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_SWIPE;
+import static android.support.v7.widget.helper.ItemTouchHelper.LEFT;
+import static android.support.v7.widget.helper.ItemTouchHelper.RIGHT;
 
 
 
@@ -77,8 +79,10 @@ public class SwipeController extends Callback {
                     int position = viewHolder.getAdapterPosition();
                     if(dX < -swipeThreshold){
                         swipeListener.onLeftSwipe(position);
+                        return true;
                     }else if(dX > swipeThreshold){
                         swipeListener.onRightSwipe(position);
+                        return true;
                     }
                 }
                 return false;

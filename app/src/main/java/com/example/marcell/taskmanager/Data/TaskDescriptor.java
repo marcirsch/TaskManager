@@ -1,16 +1,21 @@
 package com.example.marcell.taskmanager.Data;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
 @DatabaseTable(tableName = "task_descriptor")
 public class TaskDescriptor implements Serializable {
+    private static final String TAG = TaskDescriptor.class.getSimpleName();
 
     @DatabaseField(generatedId = true)
     private int id;
@@ -31,41 +36,44 @@ public class TaskDescriptor implements Serializable {
     private TaskStatus taskStatus;
 
     @DatabaseField
-    private String completionTime;
+    private long completionTime;
 
     @DatabaseField
-    private String startTime;
+    private long startTime;
 
     @DatabaseField
     private int completionPercentage;
 
     public TaskDescriptor() {
-        this.name = "task";
-        this.description = "description";
-        this.filePath = null;
-        this.keywordList = null;
+        this.name = "";
+        this.description = "";
+        this.filePath = "";
+        this.keywordList = new SerializedList<>();
         this.taskStatus = TaskStatus.PENDING;
         this.completionPercentage = 0;
     }
 
     public int getId() {
-
         return id;
     }
 
-    public String getStartTime() {
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
+    public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
-    public String getCompletionTime() {
+    public long getCompletionTime() {
         return completionTime;
     }
 
-    public void setCompletionTime(String completionTime) {
+    public void setCompletionTime(long completionTime) {
         this.completionTime = completionTime;
     }
 
@@ -106,8 +114,10 @@ public class TaskDescriptor implements Serializable {
         return keywordList;
     }
 
-    public void setKeywordList(ArrayList<String> keywordList) {
-        this.keywordList = (SerializedList<String>) keywordList;
+    public void setKeywordList(SerializedList<String> keywordList) {
+        if(keywordList!= null) {
+            this.keywordList = keywordList;
+        }
     }
 
     public TaskStatus getTaskStatus() {
@@ -116,13 +126,6 @@ public class TaskDescriptor implements Serializable {
 
     public void setTaskStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
-    }
-
-    public enum TaskStatus {
-        PENDING,
-        IN_PROGRESS,
-        DONE,
-        FAILED
     }
 
     @Override
@@ -138,6 +141,68 @@ public class TaskDescriptor implements Serializable {
                 ", startTime='" + startTime + '\'' +
                 ", completionPercentage=" + completionPercentage +
                 '}';
+    }
+
+    public void start(int delay){
+        this.startTime = System.currentTimeMillis() + (long) delay;
+        if(delay > 0){
+            this.taskStatus = TaskStatus.POSTPONED;
+        }else if(delay == 1) {
+            this.taskStatus = TaskStatus.IN_PROGRESS;
+        }else{
+            Log.e(TAG,"Delay cannot be less than 0");
+        }
+
+        this.completionPercentage = 0;
+        this.completionTime = 0;
+    }
+
+    public void progress(int percentage){
+        this.completionPercentage = percentage;
+        this.completionTime = System.currentTimeMillis() - this.startTime;
+        this.taskStatus = TaskStatus.IN_PROGRESS;
+    }
+
+    public void failed(){
+        this.taskStatus = TaskStatus.FAILED;
+    }
+
+    public void completed(){
+        this.taskStatus = TaskStatus.DONE;
+        this.completionTime = System.currentTimeMillis() - this.startTime;
+        this.completionPercentage = 100;
+    }
+
+
+    public enum TaskStatus {
+        PENDING,
+        POSTPONED,
+        IN_PROGRESS,
+        DONE,
+        FAILED
+    }
+
+    public static String getStatusString(TaskDescriptor.TaskStatus status) {
+        String statusString = "";
+        switch (status) {
+            case DONE:
+                statusString = "Completed";
+                break;
+            case PENDING:
+                statusString = "Pending";
+                break;
+            case POSTPONED:
+                statusString = "Postponed";
+                break;
+            case IN_PROGRESS:
+                statusString = "In progress";
+                break;
+            case FAILED:
+                statusString = "Failed";
+            default:
+                break;
+        }
+        return statusString;
     }
 
     public static class SerializedList<E> extends ArrayList<E> implements Serializable {

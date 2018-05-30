@@ -1,5 +1,6 @@
-package com.example.marcell.taskmanager.Data;
+package com.example.marcell.taskmanager.DataBase;
 
+import com.example.marcell.taskmanager.Data.TaskDescriptor;
 import com.j256.ormlite.android.apptools.OrmLiteConfigUtil;
 
 import java.io.IOException;

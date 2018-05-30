@@ -1,9 +1,10 @@
-package com.example.marcell.taskmanager.Data;
+package com.example.marcell.taskmanager.DataBase;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.marcell.taskmanager.Data.TaskDescriptor;
 import com.example.marcell.taskmanager.R;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
