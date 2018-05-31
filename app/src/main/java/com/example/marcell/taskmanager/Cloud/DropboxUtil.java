@@ -74,8 +74,11 @@ public class DropboxUtil {
 
     public interface OnAsyncTaskEventListener<T> {
         void onStart();
+
         void onProgress(int percentage);
+
         void onPause();
+
         void onSuccess(T object);
 
         void onFailed(Exception e);
@@ -228,16 +231,16 @@ public class DropboxUtil {
         }
 
         @Subscribe(threadMode = ThreadMode.BACKGROUND)
-        public void onUpdateTaskEvent(PauseEvent pauseEvent){
-            if(pauseEvent.ID == id){
+        public void onUpdateTaskEvent(PauseEvent pauseEvent) {
+            if (pauseEvent.ID == id) {
                 Log.d(TAG, "eventbus message! :" + pauseEvent.run);
                 runUpload = pauseEvent.run;
             }
         }
 
-        private void pauseUpload(){
+        private void pauseUpload() {
             callback.onPause();
-            while(!runUpload){
+            while (!runUpload) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -292,7 +295,7 @@ public class DropboxUtil {
 
                     // (2) Append
                     while ((size - uploaded) > CHUNKED_UPLOAD_CHUNK_SIZE) {
-                        if(!runUpload) {
+                        if (!runUpload) {
                             pauseUpload();
                             publishProgress(uploaded, size);
                         }
