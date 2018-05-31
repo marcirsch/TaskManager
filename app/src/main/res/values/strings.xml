@@ -45,4 +45,5 @@
     <string name="preferences_upload_default">60</string>
     <string name="preferences_upload_summary">Delay before send on left swipe</string>
     <string name="preferences_upload_title">Delayed upload time</string>
+    <string name="pause_action">Pause</string>
 </resources>
