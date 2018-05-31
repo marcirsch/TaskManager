@@ -127,7 +127,7 @@ public class DropboxUtil {
             Log.d(TAG, "File uri: " + localUri);
 
 
-            if (localFile.exists()) {
+            if (localFile.exists())  {
                 String remoteFolderPath = params[1];
 
                 // Note - this is not ensuring the name is a valid dropbox file name
@@ -215,17 +215,6 @@ public class DropboxUtil {
             if (size < CHUNKED_UPLOAD_CHUNK_SIZE) {
                 Log.i(TAG, "File is smaller than chunk size. Should be using regular upload.");
             }
-//            handler = new Handler(new Handler.Callback() {
-//                @Override
-//                public boolean handleMessage(Message msg) {
-//                    Bundle bundle = msg.getData();
-//                    if (bundle.getInt(TaskNotification.MSG_KEY_ID) == id) {
-//                        runUpload = bundle.getBoolean(TaskNotification.MSG_KEY_ACTION);
-//                        Log.d(TAG, "RunUpload updated: " + runUpload);
-//                    }
-//                    return false;
-//                }
-//            });
 
             EventBus.getDefault().register(this);
         }

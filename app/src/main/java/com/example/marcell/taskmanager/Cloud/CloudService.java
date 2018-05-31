@@ -2,6 +2,7 @@ package com.example.marcell.taskmanager.Cloud;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -39,10 +40,12 @@ public class CloudService extends Service {
 
         task.start(delay);
         updateTaskInDB(task);
+        TaskUpdateEvent.notifyOnDataUpdate(task);
+
         long size = DropboxUtil.getFileSize(task.getFilePath());
 
-        if(size > DropboxUtil.UploadChunkedFile.CHUNKED_UPLOAD_CHUNK_SIZE){
-            DropboxUtil.UploadChunkedFile uploadChunkedFile = dropbox.new UploadChunkedFile(task.getId(),size, delay, remoteFolder, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
+        if (size > DropboxUtil.UploadChunkedFile.CHUNKED_UPLOAD_CHUNK_SIZE) {
+            DropboxUtil.UploadChunkedFile uploadChunkedFile = dropbox.new UploadChunkedFile(task.getId(), size, delay, remoteFolder, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
                 @Override
                 public void onStart() {
                     task.start(0);
@@ -89,9 +92,9 @@ public class CloudService extends Service {
 
 
             });
-            uploadChunkedFile.execute(task.getFilePath(), remoteFolder);
+            uploadChunkedFile.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, task.getFilePath(), remoteFolder);
 
-        }else {
+        } else {
 
             DropboxUtil.UploadFile uploadFile = dropbox.new UploadFile(delay, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
                 @Override
@@ -138,11 +141,9 @@ public class CloudService extends Service {
 
             });
 
-            uploadFile.execute(task.getFilePath(), remoteFolder);
+            uploadFile.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, task.getFilePath(), remoteFolder);
         }
 
-
-        //TODO chunked upload
         Log.i(TAG, "Upload task with id: " + task.getId());
     }
 
