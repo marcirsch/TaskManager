@@ -15,13 +15,11 @@ public final class CloudHandler {
     private static CloudHandler instance;
 
     private static Context context;
-    private static DropboxUtil dropbox;
 
     private CloudHandler(final Context context) {
         this.context = context;
         String accessToken = UserPreferences.getUserToken(context);
         Log.d(TAG, "token: " + accessToken);
-        dropbox = new DropboxUtil(accessToken);
 
         authenticateUser();
     }
@@ -32,11 +30,6 @@ public final class CloudHandler {
 
         }
         return instance;
-    }
-
-    private void updateTaskInDB(TaskDescriptor task) {
-        TaskDBHandler dbHandler = TaskDBHandler.getInstance(context);
-        dbHandler.addTask(task);
     }
 
     public void upload(int ID, int delay) {
@@ -50,7 +43,7 @@ public final class CloudHandler {
     public void upload(TaskDescriptor task, String remoteFolder, int delay) {
         CloudBindHelper cloudBindHelper = CloudBindHelper.getInstance();
         if (cloudBindHelper.isBound()) {
-            cloudBindHelper.getCloudService().upload(dropbox, task, remoteFolder, delay);
+            cloudBindHelper.getCloudService().upload(task, remoteFolder, delay);
         } else {
             Log.e(TAG, "CloudService not bound");
         }
@@ -58,9 +51,15 @@ public final class CloudHandler {
 
 
     public void authenticateUser() {
+        DropboxUtil dropbox = new DropboxUtil(context);
         DropboxUtil.GetUserNameTask userNameTask = dropbox.new GetUserNameTask(new DropboxUtil.OnAsyncTaskEventListener<String>() {
             @Override
             public void onStart() {
+            }
+
+            @Override
+            public void onPause() {
+                //cannot pause
             }
 
             @Override

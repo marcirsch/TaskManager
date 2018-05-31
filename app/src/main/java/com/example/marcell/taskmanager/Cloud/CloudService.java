@@ -33,49 +33,113 @@ public class CloudService extends Service {
         dbHandler.addTask(task);
     }
 
-    public void upload(DropboxUtil dropbox, final TaskDescriptor task, String remoteFolder, int delay) {
+
+    public void upload(final TaskDescriptor task, String remoteFolder, int delay) {
+        DropboxUtil dropbox = new DropboxUtil(this);
+
         task.start(delay);
         updateTaskInDB(task);
+        long size = DropboxUtil.getFileSize(task.getFilePath());
 
-        DropboxUtil.UploadFile uploadFile = dropbox.new UploadFile(delay, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
-            @Override
-            public void onStart() {
-                task.start(0);
-                updateTaskInDB(task);
+        if(size > DropboxUtil.UploadChunkedFile.CHUNKED_UPLOAD_CHUNK_SIZE){
+            DropboxUtil.UploadChunkedFile uploadChunkedFile = dropbox.new UploadChunkedFile(task.getId(),size, delay, remoteFolder, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
+                @Override
+                public void onStart() {
+                    task.start(0);
+                    updateTaskInDB(task);
 
-                TaskUpdateEvent.notifyOnDataUpdate(task);
-                Log.i(TAG, "Starting upload: " + task.getName());
-            }
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                    Log.i(TAG, "Starting upload: " + task.getName());
+                }
 
-            @Override
-            public void onSuccess(FileMetadata object) {
-                task.completed();
-                updateTaskInDB(task);
+                @Override
+                public void onProgress(int percentage) {
+                    task.progress(percentage);
+                    updateTaskInDB(task);
 
-                TaskUpdateEvent.notifyOnDataUpdate(task);
-                Log.i(TAG, "Successful upload!");
-            }
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                }
 
-            @Override
-            public void onFailed(Exception e) {
-                e.printStackTrace();
+                @Override
+                public void onPause() {
+                    task.pause();
+                    updateTaskInDB(task);
 
-                task.failed();
-                updateTaskInDB(task);
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                }
 
-                TaskUpdateEvent.notifyOnDataUpdate(task);
-            }
+                @Override
+                public void onSuccess(FileMetadata object) {
+                    task.complete();
+                    updateTaskInDB(task);
 
-            @Override
-            public void onProgress(int percentage) {
-                task.progress(percentage);
-                updateTaskInDB(task);
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                    Log.i(TAG, "Successful upload!");
+                }
 
-                TaskUpdateEvent.notifyOnDataUpdate(task);
-            }
-        });
+                @Override
+                public void onFailed(Exception e) {
+                    e.printStackTrace();
 
-        uploadFile.execute(task.getFilePath(), remoteFolder);
+                    task.failed();
+                    updateTaskInDB(task);
+
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                }
+
+
+            });
+            uploadChunkedFile.execute(task.getFilePath(), remoteFolder);
+
+        }else {
+
+            DropboxUtil.UploadFile uploadFile = dropbox.new UploadFile(delay, new DropboxUtil.OnAsyncTaskEventListener<FileMetadata>() {
+                @Override
+                public void onStart() {
+                    task.start(0);
+                    updateTaskInDB(task);
+
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                    Log.i(TAG, "Starting upload: " + task.getName());
+                }
+
+                @Override
+                public void onProgress(int percentage) {
+                    task.progress(percentage);
+                    updateTaskInDB(task);
+
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                }
+
+                @Override
+                public void onPause() {
+                    //Can't pause small file upload
+                }
+
+                @Override
+                public void onSuccess(FileMetadata object) {
+                    task.complete();
+                    updateTaskInDB(task);
+
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                    Log.i(TAG, "Successful upload!");
+                }
+
+                @Override
+                public void onFailed(Exception e) {
+                    e.printStackTrace();
+
+                    task.failed();
+                    updateTaskInDB(task);
+
+                    TaskUpdateEvent.notifyOnDataUpdate(task);
+                }
+
+
+            });
+
+            uploadFile.execute(task.getFilePath(), remoteFolder);
+        }
 
 
         //TODO chunked upload

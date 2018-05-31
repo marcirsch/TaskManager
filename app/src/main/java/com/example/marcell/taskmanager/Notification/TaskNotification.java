@@ -11,12 +11,16 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import com.example.marcell.taskmanager.Data.TaskDescriptor;
-import com.example.marcell.taskmanager.Data.UserPreferences;
 import com.example.marcell.taskmanager.R;
 import com.example.marcell.taskmanager.UI.TaskManagerActivity;
 
 
 public final class TaskNotification {
+    public static final String ACTION_PAUSE = "Pause upload";
+    public static final String NOTIFICATION_ID = "Notification ID";
+    public static final String ACTION_RESUME = "Resume upload";
+    public static final String MSG_KEY_ID = "msg ID key";
+    public static final String MSG_KEY_ACTION = "msg ID key";
     private static final String CHANNEL_ID = "TaskManagerNotifications";
 
     public static NotificationCompat.Builder createBuilder(Context context, TaskDescriptor task) {
@@ -24,7 +28,9 @@ public final class TaskNotification {
         //safe to repeat, needed forOreo compatibility
         createNotificationChannel(context);
 
-        PendingIntent pendingIntent = getPendingIntent(context, TaskManagerActivity.class);
+        PendingIntent tapIntent = getPendingIntent(context, TaskManagerActivity.class);
+        PendingIntent resumeIntent = getResumeIntent(context, TaskNotificationService.class, task.getId());
+        PendingIntent pauseIntent = getPauseIntent(context, TaskNotificationService.class, task.getId());
 
         String taskStatusString = TaskDescriptor.getStatusString(task.getTaskStatus());
 
@@ -32,11 +38,17 @@ public final class TaskNotification {
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setContentTitle(task.getName())
                 .setContentText(taskStatusString)
-                .setContentIntent(pendingIntent)
+                .setContentIntent(tapIntent)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         if (task.getTaskStatus() == TaskDescriptor.TaskStatus.IN_PROGRESS) {
             notification.setProgress(100, task.getCompletionPercentage(), false);
+            notification.setOngoing(true);
+        }
+
+        if(task.getTaskStatus() == TaskDescriptor.TaskStatus.PAUSED || task.getTaskStatus() == TaskDescriptor.TaskStatus.IN_PROGRESS){
+            notification.addAction(R.drawable.ic_add_white_24dp, "Pause", pauseIntent);
+            notification.addAction(R.drawable.ic_add_white_24dp, "Resume", resumeIntent);
             notification.setOngoing(true);
         }
 
@@ -57,6 +69,26 @@ public final class TaskNotification {
         taskStackBuilder.addNextIntent(intent);
 
         PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        return pendingIntent;
+    }
+
+    private static PendingIntent getPauseIntent(Context context, Class<?> cls, int notificationId) {
+        Intent pauseIntent = new Intent(context, cls);
+        pauseIntent.setAction(ACTION_PAUSE);
+        pauseIntent.putExtra(NOTIFICATION_ID, notificationId);
+
+        PendingIntent pendingIntent = PendingIntent.getService(context, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        return pendingIntent;
+    }
+
+    private static PendingIntent getResumeIntent(Context context, Class<?> cls, int notificationId) {
+        Intent resumeIntent = new Intent(context, cls);
+        resumeIntent.setAction(ACTION_RESUME);
+        resumeIntent.putExtra(NOTIFICATION_ID, notificationId);
+
+
+        PendingIntent pendingIntent = PendingIntent.getService(context, 0, resumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         return pendingIntent;
     }
 

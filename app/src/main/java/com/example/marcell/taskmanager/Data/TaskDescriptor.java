@@ -163,11 +163,15 @@ public class TaskDescriptor implements Serializable {
         this.taskStatus = TaskStatus.IN_PROGRESS;
     }
 
+    public void pause(){
+        this.taskStatus = TaskStatus.PAUSED;
+    }
+
     public void failed(){
         this.taskStatus = TaskStatus.FAILED;
     }
 
-    public void completed(){
+    public void complete(){
         this.taskStatus = TaskStatus.DONE;
         this.completionTime = System.currentTimeMillis() - this.startTime;
         this.completionPercentage = 100;
@@ -177,6 +181,7 @@ public class TaskDescriptor implements Serializable {
     public enum TaskStatus {
         PENDING,
         POSTPONED,
+        PAUSED,
         IN_PROGRESS,
         DONE,
         FAILED
@@ -185,17 +190,20 @@ public class TaskDescriptor implements Serializable {
     public static String getStatusString(TaskDescriptor.TaskStatus status) {
         String statusString = "";
         switch (status) {
-            case DONE:
-                statusString = "Completed";
-                break;
             case PENDING:
                 statusString = "Pending";
                 break;
             case POSTPONED:
                 statusString = "Postponed";
                 break;
+            case PAUSED:
+                statusString = "Paused";
+                break;
             case IN_PROGRESS:
                 statusString = "In progress";
+                break;
+            case DONE:
+                statusString = "Completed";
                 break;
             case FAILED:
                 statusString = "Failed";
