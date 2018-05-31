@@ -1,6 +1,5 @@
 package com.example.marcell.taskmanager.Data;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.j256.ormlite.field.DataType;
@@ -9,7 +8,6 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -115,7 +113,7 @@ public class TaskDescriptor implements Serializable {
     }
 
     public void setKeywordList(SerializedList<String> keywordList) {
-        if(keywordList!= null) {
+        if (keywordList != null) {
             this.keywordList = keywordList;
         }
     }
@@ -143,35 +141,35 @@ public class TaskDescriptor implements Serializable {
                 '}';
     }
 
-    public void start(int delay){
+    public void start(int delay) {
         this.startTime = System.currentTimeMillis() + (long) delay;
-        if(delay > 0){
+        if (delay > 0) {
             this.taskStatus = TaskStatus.POSTPONED;
-        }else if(delay == 1) {
+        } else if (delay == 1) {
             this.taskStatus = TaskStatus.IN_PROGRESS;
-        }else{
-            Log.e(TAG,"Delay cannot be less than 0");
+        } else {
+            Log.e(TAG, "Delay cannot be less than 0");
         }
 
         this.completionPercentage = 0;
         this.completionTime = 0;
     }
 
-    public void progress(int percentage){
+    public void progress(int percentage) {
         this.completionPercentage = percentage;
         this.completionTime = System.currentTimeMillis() - this.startTime;
         this.taskStatus = TaskStatus.IN_PROGRESS;
     }
 
-    public void pause(){
+    public void pause() {
         this.taskStatus = TaskStatus.PAUSED;
     }
 
-    public void failed(){
+    public void failed() {
         this.taskStatus = TaskStatus.FAILED;
     }
 
-    public void complete(){
+    public void complete() {
         this.taskStatus = TaskStatus.DONE;
         this.completionTime = System.currentTimeMillis() - this.startTime;
         this.completionPercentage = 100;
